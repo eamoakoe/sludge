@@ -4,68 +4,42 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
-from utils.loader_scope import load_scope
-from utils.style import apply_theme
-from sidebar import build_sidebar
+import pandas as pd
 
-# Page config
-st.set_page_config(page_title="ASP4 Design Dashboard", layout="wide")
+st.set_page_config(page_title="ASP4", layout="wide")
 
-# Style
-apply_theme()
+st.title("DEBUG VIEW")
 
-# Load data
-df = load_scope("data/design_scope.xlsx")
+# ✅ Show working directory
+st.write("Current working directory:")
+st.write(os.getcwd())
 
-# Sidebar
-filters = build_sidebar(df)
+# ✅ Show files in root
+st.write("Files in root:")
+st.write(os.listdir())
 
-# ---------------------------
-# FILTERING (SAFE)
-# ---------------------------
-filtered = df.copy()
-
-# Discipline
-if filters["discipline"] != "All":
-    filtered = filtered[
-        filtered["discipline"] == filters["discipline"]
-    ]
-
-# Search
-if filters["search"]:
-    filtered = filtered[
-        filtered["scope_item"].astype(str).str.contains(
-            filters["search"],
-            case=False,
-            na=False
-        )
-    ]
-
-# Assumptions
-if filters["assumptions"]:
-    filtered = filtered[
-        filtered["assumptions"].astype(str).str.strip() != ""
-    ]
-
-# Changes
-if filters["changes"]:
-    filtered = filtered[
-        filtered["comments"].astype(str).str.contains(
-            "change",
-            case=False,
-            na=False
-        )
-    ]
-
-# ---------------------------
-# DISPLAY
-# ---------------------------
-st.title("Design Scope")
-
-# ✅ ALWAYS show something
-if len(filtered) == 0:
-    st.warning("No data found with current filters")
-    st.info("Showing full dataset instead")
-    st.dataframe(df, use_container_width=True)
+# ✅ Show files in asp/data folder
+if os.path.exists("data"):
+    st.write("Files in /data:")
+    st.write(os.listdir("data"))
 else:
-    st.dataframe(filtered, use_container_width=True)
+    st.error("❌ data folder not found")
+
+# ✅ Try loading Excel directly (no loader)
+try:
+    df = pd.read_excel("data/design_scope.xlsx")
+
+    st.success("✅ Excel file loaded successfully")
+
+    st.write("Columns:")
+    st.write(df.columns.tolist())
+
+    st.write("Row count:")
+    st.write(len(df))
+
+    st.write("Preview:")
+    st.dataframe(df.head(20), width="stretch")
+
+except Exception as e:
+    st.error(f"❌ Error loading Excel: {e}")
+``
