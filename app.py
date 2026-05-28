@@ -4,41 +4,55 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
-import pandas as pd
+from utils.loader_scope import load_scope
+from utils.style import apply_theme
+from sidebar import build_sidebar
 
 st.set_page_config(page_title="ASP4", layout="wide")
 
-st.title("DEBUG VIEW")
+apply_theme()
 
-# ✅ Show working directory
-st.write("Current working directory:")
-st.write(os.getcwd())
+# ✅ Load correctly structured data
+df = load_scope("data/design_scope.xlsx")
 
-# ✅ Show files in root
-st.write("Files in root:")
-st.write(os.listdir())
+# ✅ Sidebar
+filters = build_sidebar(df)
 
-# ✅ Show files in asp/data folder
-if os.path.exists("data"):
-    st.write("Files in /data:")
-    st.write(os.listdir("data"))
+# ✅ Filtering
+filtered = df.copy()
+
+if filters["discipline"] != "All":
+    filtered = filtered[filtered["discipline"] == filters["discipline"]]
+
+if filters["search"]:
+    filtered = filtered[
+        filtered["scope_item"].astype(str).str.contains(
+            filters["search"],
+            case=False,
+            na=False
+        )
+    ]
+
+if filters["assumptions"]:
+    filtered = filtered[
+        filtered["assumptions"].astype(str).str.strip() != ""
+    ]
+
+if filters["changes"]:
+    filtered = filtered[
+        filtered["comments"].astype(str).str.contains(
+            "change",
+            case=False,
+            na=False
+        )
+    ]
+
+# ✅ Always show something
+st.title("Design Scope")
+
+if len(filtered) == 0:
+    st.warning("No matching results — showing full dataset")
+    st.dataframe(df, width="stretch")
 else:
-    st.error("❌ data folder not found")
-
-# ✅ Try loading Excel directly (no loader)
-try:
-    df = pd.read_excel("data/design_scope.xlsx")
-
-    st.success("✅ Excel file loaded successfully")
-
-    st.write("Columns:")
-    st.write(df.columns.tolist())
-
-    st.write("Row count:")
-    st.write(len(df))
-
-    st.write("Preview:")
-    st.dataframe(df.head(20), width="stretch")
-
-except Exception as e:
-    st.error(f"❌ Error loading Excel: {e}")
+    st.dataframe(filtered, width="stretch")
+``
