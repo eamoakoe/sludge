@@ -55,4 +55,3 @@ if len(filtered) == 0:
     st.dataframe(df, width="stretch")
 else:
     st.dataframe(filtered, width="stretch")
-``
