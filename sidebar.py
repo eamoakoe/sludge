@@ -2,23 +2,14 @@ import streamlit as st
 
 def build_sidebar(scope_df):
 
+    # Header
     st.sidebar.markdown("### 🏗️ ASP4")
     st.sidebar.caption("Design Intelligence")
 
     st.sidebar.write("---")
 
-    # NAV
-    st.sidebar.markdown("#### Modules")
-    page = st.sidebar.radio(
-        "",
-        ["Dashboard", "Scope", "Relied Info", "Sequence"],
-        label_visibility="collapsed"
-    )
-
-    st.sidebar.write("---")
-
-    # FILTERS
-    st.sidebar.markdown("#### Scope Filters")
+    # Filters
+    st.sidebar.markdown("#### 🔎 Scope Filters")
 
     disciplines = sorted(scope_df["discipline"].dropna().unique())
 
@@ -31,16 +22,16 @@ def build_sidebar(scope_df):
 
     st.sidebar.write("---")
 
-    # QUALITY
-    st.sidebar.markdown("#### Scope Quality")
+    # Scope Quality
+    st.sidebar.markdown("#### 🧾 Scope Quality")
 
     show_assumptions = st.sidebar.checkbox("Has Assumptions")
     show_changes = st.sidebar.checkbox("Show Changes Only")
 
     st.sidebar.write("---")
 
-    # RISK
-    st.sidebar.markdown("#### Risk")
+    # Risk
+    st.sidebar.markdown("#### ⚠️ Risk")
 
     risk_filter = st.sidebar.multiselect(
         "Risk Level",
@@ -52,16 +43,15 @@ def build_sidebar(scope_df):
 
     st.sidebar.write("---")
 
-    # SUMMARY
+    # Summary
     total = len(scope_df)
     high = len(scope_df[scope_df["risk_level"] == "High"])
 
-    st.sidebar.markdown("#### Summary")
+    st.sidebar.markdown("#### 📊 Summary")
     st.sidebar.metric("Items", total)
     st.sidebar.metric("High Risk", high)
 
     return {
-        "page": page,
         "discipline": discipline,
         "search": search,
         "risk": risk_filter,
