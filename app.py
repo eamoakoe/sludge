@@ -10,49 +10,37 @@ from utils.risk_engine import compute_risk
 from utils.style import apply_theme
 from sidebar import build_sidebar
 
-# -----------------------------------
-# ✅ PAGE CONFIG
-# -----------------------------------
+# ✅ Page config (clean UI)
 st.set_page_config(
     page_title="ASP4 Design Dashboard",
     layout="wide"
 )
 
-# -----------------------------------
-# ✅ THEME
-# -----------------------------------
+# ✅ Apply dark green theme
 apply_theme()
 
-# -----------------------------------
-# ✅ LOAD DATA
-# -----------------------------------
+# ✅ Load data
 df = load_scope("data/design_scope.xlsx")
 df = compute_risk(df)
 
-# Debug (remove later if you want)
-st.write("Columns:", df.columns.tolist())
-st.write("Total rows loaded:", len(df))
-
-# -----------------------------------
-# ✅ SIDEBAR
-# -----------------------------------
+# ✅ Sidebar (minimal version)
 filters = build_sidebar(df)
 
 # -----------------------------------
-# ✅ FILTER DATA (SAFE VERSION)
+# ✅ FILTER LOGIC
 # -----------------------------------
 filtered = df.copy()
 
 # Discipline filter
-if filters["discipline"] != "All" and "discipline" in filtered.columns:
+if filters["discipline"] != "All":
     filtered = filtered[
         filtered["discipline"] == filters["discipline"]
     ]
 
 # Search filter
-if filters["search"] and "scope_item" in filtered.columns:
+if filters["search"]:
     filtered = filtered[
-        filtered["scope_item"].astype(str).str.contains(
+        filtered["scope_item"].str.contains(
             filters["search"],
             case=False,
             na=False
@@ -60,13 +48,13 @@ if filters["search"] and "scope_item" in filtered.columns:
     ]
 
 # Assumptions filter
-if filters["assumptions"] and "assumptions" in filtered.columns:
+if filters["assumptions"]:
     filtered = filtered[
         filtered["assumptions"].astype(str).str.strip() != ""
     ]
 
-# Changes filter
-if filters["changes"] and "comments" in filtered.columns:
+# Changes filter (based on comments text)
+if filters["changes"]:
     filtered = filtered[
         filtered["comments"].astype(str).str.contains(
             "change",
@@ -76,12 +64,7 @@ if filters["changes"] and "comments" in filtered.columns:
     ]
 
 # -----------------------------------
-# ✅ DEBUG ROW COUNTS
-# -----------------------------------
-st.write("Rows after filtering:", len(filtered))
-
-# -----------------------------------
-# ✅ UI DISPLAY
+# ✅ MAIN UI
 # -----------------------------------
 st.title("Design Scope")
 
@@ -94,16 +77,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ✅ Handle empty results
-if filtered.empty:
-    st.warning("No data matches current filters")
-
-    st.markdown("Showing sample data for reference:")
-    st.dataframe(df.head(20), use_container_width=True)
-
-else:
-    st.dataframe(
-        filtered,
-        use_container_width=True,
-        height=600
-    )
+# ✅ Clean table display
+st.dataframe(
+    filtered,
+    use_container_width=True,
+    height=600
+)
