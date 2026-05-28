@@ -1,40 +1,62 @@
 import pandas as pd
 
 def load_scope(path):
-    df = pd.read_excel(path)
 
+    # Load raw
+    df_raw = pd.read_excel(path, header=None)
+
+    header_row = None
+
+    # Find real header row (flexible)
+    for i in range(len(df_raw)):
+        row = df_raw.iloc[i].astype(str).str.lower()
+
+        if (
+            row.str.contains("discipline").any() and
+            row.str.contains("scope").any()
+        ):
+            header_row = i
+            break
+
+    # Reload using detected header
+    if header_row is not None:
+        df = pd.read_excel(path, header=header_row)
+    else:
+        df = pd.read_excel(path, header=1)
+
+    # Clean column names
     df.columns = [str(col).strip().lower() for col in df.columns]
 
-    rename_map = {
+    # Rename IMPORTANT columns
+    df = df.rename(columns={
         "discipline": "discipline",
         "scope item": "scope_item",
         "assumptions / clarifications": "assumptions",
-        "exclusions": "exclusions",
-        "arup comments": "comments",
-        "accepted": "accepted"
-    }
+        "arup comments": "comments"
+    })
 
-    df = df.rename(columns=rename_map)
+    # ✅ FORCE columns to exist (this fixes your error)
+    if "discipline" not in df.columns:
+        df["discipline"] = "Unknown"
 
-    df = df.dropna(how="all")
+    if "scope_item" not in df.columns:
+        # Try to recover from generic columns
+        df["scope_item"] = df.iloc[:, 1].astype(str)
 
-    if "discipline" in df.columns:
-        df["discipline"] = df["discipline"].ffill()
+    if "assumptions" not in df.columns:
+        df["assumptions"] = ""
 
-    df["id"] = range(1, len(df) + 1)
+    if "comments" not in df.columns:
+        df["comments"] = ""
 
-    # ✅ Ensure columns always exist
-    required_cols = ["scope_item", "assumptions", "comments"]
+    # ✅ Clean rows
+    df = df[df["scope_item"].astype(str).str.strip() != ""]
 
-    for col in required_cols:
-        if col not in df.columns:
-            df[col] = ""
+    # ✅ Forward fill discipline
+    df["discipline"] = df["discipline"].replace("nan", None)
+    df["discipline"] = df["discipline"].ffill()
 
-    # ✅ Now safe to use astype
-    df["full_text"] = (
-            df["scope_item"].astype(str) + " " +
-            df["assumptions"].astype(str) + " " +
-            df["comments"].astype(str)
-    )
+    # ✅ Final fallback (avoid blank discipline)
+    df["discipline"] = df["discipline"].fillna("Unknown")
 
     return df
