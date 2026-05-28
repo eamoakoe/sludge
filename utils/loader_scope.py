@@ -23,10 +23,18 @@ def load_scope(path):
 
     df["id"] = range(1, len(df) + 1)
 
+    # ✅ Ensure columns always exist
+    required_cols = ["scope_item", "assumptions", "comments"]
+
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = ""
+
+    # ✅ Now safe to use astype
     df["full_text"] = (
-        df.get("scope_item", "").astype(str) + " " +
-        df.get("assumptions", "").astype(str) + " " +
-        df.get("comments", "").astype(str)
+            df["scope_item"].astype(str) + " " +
+            df["assumptions"].astype(str) + " " +
+            df["comments"].astype(str)
     )
 
     return df
