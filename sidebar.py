@@ -9,53 +9,34 @@ def build_sidebar(scope_df):
     st.sidebar.write("---")
 
     # Filters
-    st.sidebar.markdown("#### 🔎 Scope Filters")
+    st.sidebar.markdown("#### 🔎 Filters")
 
-    disciplines = sorted(scope_df["discipline"].dropna().unique())
+    if "discipline" in scope_df.columns:
+        disciplines = sorted(scope_df["discipline"].dropna().unique())
+    else:
+        disciplines = []
 
     discipline = st.sidebar.selectbox(
         "Discipline",
         ["All"] + disciplines
     )
 
-    search = st.sidebar.text_input("Search")
-
-    st.sidebar.write("---")
-
-    # Scope Quality
-    st.sidebar.markdown("#### 🧾 Scope Quality")
-
-    show_assumptions = st.sidebar.checkbox("Has Assumptions")
-    show_changes = st.sidebar.checkbox("Show Changes Only")
-
-    st.sidebar.write("---")
-
-    # Risk
-    st.sidebar.markdown("#### ⚠️ Risk")
-
-    risk_filter = st.sidebar.multiselect(
-        "Risk Level",
-        ["High", "Medium", "Low"],
-        default=["High", "Medium", "Low"]
+    search = st.sidebar.text_input(
+        "Search",
+        placeholder="e.g. pumps, MBR..."
     )
 
-    uncertain_only = st.sidebar.checkbox("Uncertain Only")
-
     st.sidebar.write("---")
 
-    # Summary
-    total = len(scope_df)
-    high = len(scope_df[scope_df["risk_level"] == "High"])
+    # Scope quality
+    st.sidebar.markdown("#### 🧾 Scope")
 
-    st.sidebar.markdown("#### 📊 Summary")
-    st.sidebar.metric("Items", total)
-    st.sidebar.metric("High Risk", high)
+    show_assumptions = st.sidebar.checkbox("Has Assumptions")
+    show_changes = st.sidebar.checkbox("Show Changes")
 
     return {
         "discipline": discipline,
         "search": search,
-        "risk": risk_filter,
         "assumptions": show_assumptions,
-        "changes": show_changes,
-        "uncertain": uncertain_only
+        "changes": show_changes
     }

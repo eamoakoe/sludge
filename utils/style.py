@@ -17,13 +17,6 @@ def apply_theme():
         color: #e6f5f1 !important;
     }
 
-    .sidebar-section {
-        font-size: 12px;
-        text-transform: uppercase;
-        color: #7fd1ba;
-        font-weight: 600;
-    }
-
     hr {
         border: 0.5px solid #2e6f60;
     }
