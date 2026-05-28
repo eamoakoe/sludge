@@ -1,45 +1,39 @@
 import pandas as pd
 
-def load_scope(path):
+def load_scope(file_path):
+    df = pd.read_excel(file_path)
 
-    # Step 1: load raw (no header)
-    df_raw = pd.read_excel(path, header=None)
+    # Clean column names
+    df.columns = [str(col).strip() for col in df.columns]
 
-    # Step 2: find real header row
-    header_row = None
+    # Rename for consistency (adjust based on your exact headers)
+    rename_map = {
+        "Discipline": "discipline",
+        "Scope Item": "scope_item",
+        "Assumptions / Clarifications": "assumptions",
+        "Exclusions": "exclusions",
+        "Arup Comments": "comments",
+        "Accepted": "accepted"
+    }
 
-    for i in range(len(df_raw)):
-        row = df_raw.iloc[i].astype(str).str.lower().tolist()
+    df = df.rename(columns=rename_map)
 
-        # We look for BOTH key headers
-        if "discipline" in row and "scope item" in row:
-            header_row = i
-            break
+    # Drop empty rows
+    df = df.dropna(how="all")
 
-    # Step 3: reload using correct header
-    if header_row is not None:
-        df = pd.read_excel(path, header=header_row)
-    else:
-        raise ValueError("Could not find header row")
+    # Forward fill discipline (important for your structure)
+    if "discipline" in df.columns:
+        df["discipline"] = df["discipline"].ffill()
 
-    # Step 4: clean column names
-    df.columns = [str(col).strip().lower() for col in df.columns]
+    # Add ID
+    df["id"] = range(1, len(df) + 1)
 
-    # Step 5: rename to clean format
-    df = df.rename(columns={
-        "discipline": "discipline",
-        "scope item": "scope_item",
-        "assumptions / clarifications": "assumptions",
-        "exclusions": "exclusions",
-        "arup comments": "comments",
-        "accepted": "accepted"
-    })
-
-    # Step 6: remove junk rows
-    df = df[df["scope_item"].notna()]
-    df = df[df["scope_item"].astype(str).str.strip() != ""]
-
-    # Step 7: fill discipline
-    df["discipline"] = df["discipline"].ffill()
+    # Combine text for AI / risk analysis
+    df["full_text"] = (
+        df["scope_item"].astype(str) + " " +
+        df["assumptions"].astype(str) + " " +
+        df["exclusions"].astype(str) + " " +
+        df["comments"].astype(str)
+    )
 
     return df
