@@ -8,7 +8,7 @@ def compute_risk(df):
 
     df["risk_score"] = df["full_text"].apply(score)
 
-    def label(x):
+    def level(x):
         if x >= 2:
             return "High"
         elif x == 1:
@@ -16,7 +16,7 @@ def compute_risk(df):
         else:
             return "Low"
 
-    df["risk_level"] = df["risk_score"].apply(label)
+    df["risk_level"] = df["risk_score"].apply(level)
 
     df["is_uncertain"] = df["full_text"].str.contains(
         "assume|tbc|to be confirmed",
