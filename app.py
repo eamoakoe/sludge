@@ -1,7 +1,7 @@
 import sys
 import os
 
-# ✅ CRITICAL FIX FOR STREAMLIT CLOUD
+# ✅ Fix import paths (CRITICAL for Streamlit Cloud)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
@@ -20,38 +20,42 @@ df = compute_risk(df)
 # Sidebar
 filters = build_sidebar(df)
 
-# --------------------
-# FILTER LOGIC
-# --------------------
+# ---------------------------
+# FILTER DATA
+# ---------------------------
 filtered = df.copy()
 
+# Discipline
 if filters["discipline"] != "All":
     filtered = filtered[filtered["discipline"] == filters["discipline"]]
 
+# Risk
 if filters["risk"]:
     filtered = filtered[filtered["risk_level"].isin(filters["risk"])]
 
+# Uncertain
 if filters["uncertain"]:
     filtered = filtered[filtered["is_uncertain"] == True]
 
+# Search
 if filters["search"]:
     filtered = filtered[
         filtered["scope_item"].str.contains(filters["search"], case=False, na=False)
     ]
 
-# ✅ Assumptions filter
+# Assumptions
 if filters["assumptions"]:
     filtered = filtered[filtered["assumptions"].notna()]
 
-# ✅ Changes filter
+# Changes
 if filters["changes"]:
     filtered = filtered[
         filtered["comments"].str.contains("change", case=False, na=False)
     ]
 
-# --------------------
-# UI
-# --------------------
-st.title("Design Scope")
+# ---------------------------
+# DISPLAY
+# ---------------------------
+st.title("Design Scope Dashboard")
 
 st.dataframe(filtered, use_container_width=True)
