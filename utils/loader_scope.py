@@ -3,14 +3,14 @@ import pandas as pd
 def load_scope():
     df = pd.read_excel("data/design_scope.xlsx", engine="openpyxl")
 
-    # ---- Clean column names ----
+    # Clean column names
     df.columns = [c.strip().lower() for c in df.columns]
 
-    # ---- Fix hierarchy (discipline forward fill) ----
+    # Forward fill discipline
     if "discipline" in df.columns:
         df["discipline"] = df["discipline"].ffill()
 
-    # ---- Create FULL TEXT COLUMN (THIS FIXES YOUR ERROR) ----
+    # ---- CREATE full_text SAFELY ----
     text_cols = [
         "scope item",
         "assumptions / clarifications",
@@ -18,9 +18,12 @@ def load_scope():
         "arup comments"
     ]
 
-    # Only keep columns that exist
+    # Keep only existing columns
     existing_cols = [c for c in text_cols if c in df.columns]
 
-    df["full_text"] = df[existing_cols].fillna("").agg(" ".join, axis=1)
+    if existing_cols:
+        df["full_text"] = df[existing_cols].fillna("").astype(str).agg(" ".join, axis=1)
+    else:
+        df["full_text"] = ""   # fallback
 
     return df
