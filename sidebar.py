@@ -1,47 +1,22 @@
 import streamlit as st
 
-
 def render_sidebar():
-    # =========================
-    # TITLE / BRANDING
-    # =========================
+
     st.sidebar.title("🏗️ Design AI Platform")
 
-    st.sidebar.markdown("""
-    **Project:** Davyhulme ASP4  
-    **Phase:** Feasibility  
-    """)
+    st.sidebar.markdown("### Project")
+    st.sidebar.write("Davyhulme ASP4")
 
     st.sidebar.markdown("---")
 
-    # =========================
-    # NAVIGATION INFO
-    # =========================
-    st.sidebar.subheader("📂 Navigation")
-
-    st.sidebar.info("Use the page selector above to switch modules")
-
-    st.sidebar.markdown("""
-    - Home (Dashboard)  
-    - Scope  
-    - Sequence  
-    - Relied Info  
-    """)
-
-    # =========================
-    # GLOBAL FILTERS (CORE)
-    # =========================
-    st.sidebar.markdown("---")
     st.sidebar.subheader("⚙️ Filters")
 
-    # ---- Phase Filter ----
     phase = st.sidebar.selectbox(
         "Phase",
         ["All", "40%", "60%", "Optimised 60%"],
         key="phase_filter"
     )
 
-    # ---- Discipline Filter ----
     discipline = st.sidebar.selectbox(
         "Discipline",
         [
@@ -56,14 +31,10 @@ def render_sidebar():
         key="discipline_filter"
     )
 
-    # ✅ STORE GLOBALLY (THIS IS THE MOST IMPORTANT PART)
+    # store state (safe even if unused)
     st.session_state["phase"] = phase
     st.session_state["discipline"] = discipline
 
-    # =========================
-    # SYSTEM STATUS
-    # =========================
     st.sidebar.markdown("---")
-    st.sidebar.subheader("🟢 System Status")
 
-    st.sidebar.success("App Running")
+    st.sidebar.success("✅ Sidebar Loaded")

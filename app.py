@@ -1,23 +1,16 @@
 import streamlit as st
-
 from sidebar import render_sidebar
-from home import render_home
 
-# ---------------------------
-# PAGE CONFIG
-# ---------------------------
+# Page config
 st.set_page_config(
-    page_title="Design Intelligence Dashboard",
+    page_title="Test Sidebar",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ---------------------------
-# SIDEBAR
-# ---------------------------
+# Render ONLY sidebar
 render_sidebar()
 
-# ---------------------------
-# HOME PAGE
-# ---------------------------
-render_home()
+# Main area (empty test)
+st.title("✅ Sidebar Test Page")
+st.write("If you can see the sidebar, everything is working.")
