@@ -1,4 +1,4 @@
-from utils.loader_relief import load_relied
+from utils.loader_relied import load_relied
 
 relied_df = load_relied()
 
