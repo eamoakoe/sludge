@@ -7,27 +7,41 @@ def build_sidebar(scope_df):
 
     st.sidebar.write("---")
 
-    # ✅ Clean disciplines from real data
-    if "discipline" in scope_df.columns:
-        disciplines = sorted(
-            scope_df["discipline"]
-            .dropna()
-            .unique()
-        )
-    else:
-        disciplines = []
+    # ✅ Get REAL disciplines only
+    disciplines = sorted(
+        scope_df["discipline"]
+        .dropna()
+        .unique()
+        .tolist()
+    )
 
     discipline = st.sidebar.selectbox(
         "Discipline",
-        ["All"] + list(disciplines)
+        ["All"] + disciplines
     )
 
+    # ✅ Search
     search = st.sidebar.text_input("Search")
 
     st.sidebar.write("---")
 
-    show_assumptions = st.sidebar.checkbox("Has Assumptions")
-    show_changes = st.sidebar.checkbox("Show Changes")
+    # ✅ Only show filters if relevant data exists
+    has_assumptions = (
+        scope_df["assumptions"].str.strip() != ""
+    ).any()
+
+    has_changes = (
+        scope_df["comments"].str.contains("change", case=False, na=False)
+    ).any()
+
+    show_assumptions = False
+    show_changes = False
+
+    if has_assumptions:
+        show_assumptions = st.sidebar.checkbox("Has Assumptions")
+
+    if has_changes:
+        show_changes = st.sidebar.checkbox("Show Changes")
 
     return {
         "discipline": discipline,

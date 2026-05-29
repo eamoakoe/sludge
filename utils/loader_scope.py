@@ -2,13 +2,13 @@ import pandas as pd
 
 def load_scope(path):
 
-    # Load raw
-    df = pd.read_excel(path, header=0)
+    # ✅ Load file (your header is already correct row)
+    df = pd.read_excel(path)
 
-    # Clean column names
+    # ✅ Clean column names
     df.columns = [str(col).strip().lower() for col in df.columns]
 
-    # Rename properly
+    # ✅ Rename columns properly
     df = df.rename(columns={
         "discipline": "discipline",
         "scope item": "scope_item",
@@ -22,18 +22,19 @@ def load_scope(path):
         if col not in df.columns:
             df[col] = ""
 
-    # ✅ Clean strings
+    # ✅ Convert everything to string
     df = df.astype(str)
 
-    # ✅ Remove empty scope rows
+    # ✅ Remove empty rows
     df = df[df["scope_item"].str.strip() != ""]
     df = df[df["scope_item"].str.lower() != "nan"]
 
-    # ✅ Forward fill discipline
-    df["discipline"] = df["discipline"].replace("nan", None)
+    # ✅ Forward fill discipline (VERY IMPORTANT for your file)
+    df["discipline"] = df["discipline"].replace("nan", "")
+    df["discipline"] = df["discipline"].replace("", None)
     df["discipline"] = df["discipline"].ffill()
 
-    # ✅ REMOVE section headers (critical for your file)
+    # ✅ Remove section headers (non-real disciplines)
     invalid_disciplines = [
         "technical governance and assurance",
         "40% option - amp9 requirements",
@@ -47,7 +48,14 @@ def load_scope(path):
         ~df["discipline"].str.lower().isin(invalid_disciplines)
     ]
 
-    # ✅ Final clean
+    # ✅ Clean discipline labels
     df["discipline"] = df["discipline"].str.strip()
+
+    # ✅ Create full_text (safe for future features)
+    df["full_text"] = (
+        df["scope_item"] + " " +
+        df["assumptions"] + " " +
+        df["comments"]
+    )
 
     return df
