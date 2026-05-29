@@ -1,84 +1,64 @@
 import streamlit as st
+import plotly.express as px
 
-def render_sidebar():
-    # ---------------------------
-    # HEADER
-    # ---------------------------
-    st.sidebar.title("🏗️ Design AI Platform")
+from utils.loader_scope import load_scope
+from utils.risk_engine import calculate_risk, risk_level
+from utils.text_utils import detect_change
 
-    st.sidebar.markdown("""
-    **Project:** Davyhulme ASP4  
-    **Stage:** Feasibility  
-    """)
 
-    st.sidebar.markdown("---")
+def render_home():
 
     # ---------------------------
-    # NAVIGATION INFO
+    # LOAD DATA
     # ---------------------------
-    st.sidebar.subheader("📂 Navigation")
-
-    st.sidebar.info("Use the menu above to switch pages")
-
-    st.sidebar.markdown("""
-    - 📊 Dashboard  
-    - 📋 Scope  
-    - 🔗 Sequence  
-    - 📁 Relied Info  
-    """)
+    df = load_scope()
 
     # ---------------------------
-    # GLOBAL FILTERS
+    # AI PROCESSING
     # ---------------------------
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("⚙️ Filters")
+    df["risk_score"] = df["full_text"].apply(calculate_risk)
+    df["risk_level"] = df["risk_score"].apply(risk_level)
+    df["change_flag"] = df["full_text"].apply(detect_change)
 
-    phase = st.sidebar.selectbox(
-        "Phase",
-        ["All", "40%", "60%", "Optimised 60%"]
+    # ---------------------------
+    # APPLY FILTERS
+    # ---------------------------
+    phase = st.session_state.get("phase", "All")
+    discipline = st.session_state.get("discipline", "All")
+
+    if phase != "All":
+        df = df[df["phase"] == phase]
+
+    if discipline != "All":
+        df = df[df["discipline"] == discipline]
+
+    # ---------------------------
+    # UI
+    # ---------------------------
+    st.title("🏗️ Design Intelligence Dashboard")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    col1.metric("Total Scope", len(df))
+    col2.metric("High Risk", (df["risk_level"] == "High").sum())
+    col3.metric("Changes", df["change_flag"].sum())
+    col4.metric(
+        "Assumptions",
+        df["full_text"].str.contains("assume", case=False, na=False).sum()
     )
 
-    discipline = st.sidebar.selectbox(
-        "Discipline",
-        [
-            "All",
-            "Civil",
-            "Structural",
-            "Mechanical",
-            "Process",
-            "Electrical & ICA",
-            "Geotechnical"
-        ]
-    )
+    # ---------------------------
+    # CHARTS
+    # ---------------------------
+    fig = px.histogram(df, x="risk_level", color="risk_level")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Store globally
-    st.session_state["phase"] = phase
-    st.session_state["discipline"] = discipline
+    fig2 = px.bar(df, x="discipline", color="risk_level")
+    st.plotly_chart(fig2, use_container_width=True)
 
     # ---------------------------
-    # SYSTEM STATUS
+    # TABLE
     # ---------------------------
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("🟢 System Status")
+    st.dataframe(df, use_container_width=True)
 
-    st.sidebar.success("Data Loaded")
-    st.sidebar.success("Risk Engine Active")
-    st.sidebar.success("AI Ready")
-
-    # ---------------------------
-    # QUICK INSIGHTS
-    # ---------------------------
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("⚡ Insights")
-
-    st.sidebar.markdown("""
-    - CHANGE events detected  
-    - Supplier dependency present  
-    - Higher risk in 60% phase  
-    """)
-
-    # ---------------------------
-    # FOOTER
-    # ---------------------------
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Design Intelligence v1.0")
+    st.success("✅ Dashboard Ready")
