@@ -1,77 +1,52 @@
 import streamlit as st
 
-# ---- Page Config ----
+# ✅ Import your sidebar
+from sidebar import render_sidebar
+
+# ---------------------------
+# PAGE CONFIG
+# ---------------------------
 st.set_page_config(
     page_title="Design Intelligence Dashboard",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ---- Sidebar Branding ----
-st.sidebar.title("🏗️ Design AI Platform")
+# ✅ Render Sidebar
+render_sidebar()
 
-st.sidebar.markdown("""
-**Project:** Davyhulme ASP4  
-**Phase:** Feasibility  
-**Built by:** Design Management  
+# ---------------------------
+# HOME PAGE CONTENT
+# ---------------------------
 
----
-""")
-
-# ---- Navigation Info ----
-st.sidebar.subheader("📂 Modules")
-
-st.sidebar.markdown("""
-- 📊 Dashboard  
-- 📋 Scope Analysis  
-- 🔗 Design Sequence  
-- 📁 Relied Information  
-""")
-
-# ---- Global Filters (OPTIONAL but powerful) ----
-st.sidebar.subheader("⚙️ Global Filters")
-
-phase = st.sidebar.selectbox(
-    "Select Phase",
-    ["All", "40%", "60%", "Optimised 60%"]
-)
-
-discipline = st.sidebar.selectbox(
-    "Select Discipline",
-    ["All", "Civil", "Structural", "Mechanical", "Process", "Electrical & ICA"]
-)
-
-# Store globally (important)
-st.session_state["phase"] = phase
-st.session_state["discipline"] = discipline
-
-# ---- Main Page ----
 st.title("🏗️ Design Management Intelligence System")
 
 st.markdown("""
-Welcome to the AI-powered design dashboard.
+Welcome to your AI-powered design dashboard.
 
-Use the sidebar to navigate between:
-- **Scope Intelligence**
-- **Design Flow**
-- **Dependency Risk**
-
----
-
-### 🚀 What this tool does
-- Detects **design risks automatically**
-- Highlights **changes in scope**
-- Tracks **dependencies and bottlenecks**
-- Surfaces **supplier and data risks**
+### 🚀 What this platform does:
+- Analyse design scope and risks  
+- Track changes across phases  
+- Understand dependencies and workflow  
+- Highlight supplier and data risks  
 
 ---
+
+### 📊 Navigate using the sidebar:
+- Dashboard → overview and KPIs  
+- Scope → detailed design items  
+- Sequence → workflow and dependencies  
+- Relied Info → external data and supplier inputs  
 """)
 
-# ---- Quick Summary Panel ----
+# ---------------------------
+# OPTIONAL: SIMPLE KPIs
+# ---------------------------
+
 col1, col2, col3 = st.columns(3)
 
-col1.info("📊 Analyse design risk across disciplines")
-col2.info("🔗 Understand sequencing and dependencies")
-col3.info("📁 Track relied information & supplier exposure")
+col1.info("📊 Risk visibility across disciplines")
+col2.info("🔗 Full design flow understanding")
+col3.info("📁 External dependency tracking")
 
 st.success("✅ System ready")
