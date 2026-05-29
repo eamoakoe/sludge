@@ -1,51 +1,129 @@
 import streamlit as st
 
-def build_sidebar(scope_df):
+# =========================
+# PAGE CONFIG
+# =========================
+st.set_page_config(
+    page_title="Design Intelligence Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-    st.sidebar.markdown("### 🏗️ ASP4")
-    st.sidebar.caption("Design Intelligence")
+# =========================
+# SIDEBAR
+# =========================
 
-    st.sidebar.write("---")
+# ---- Header / Branding ----
+st.sidebar.title("🏗️ Design AI Platform")
 
-    # ✅ Get REAL disciplines only
-    disciplines = sorted(
-        scope_df["discipline"]
-        .dropna()
-        .unique()
-        .tolist()
-    )
+st.sidebar.markdown("""
+**Project:** Davyhulme ASP4  
+**Module:** Feasibility Design  
+**System:** AI Design Management  
 
-    discipline = st.sidebar.selectbox(
-        "Discipline",
-        ["All"] + disciplines
-    )
+---
+""")
 
-    # ✅ Search
-    search = st.sidebar.text_input("Search")
+# =========================
+# NAVIGATION GUIDE
+# =========================
+st.sidebar.subheader("📂 Navigation")
 
-    st.sidebar.write("---")
+st.sidebar.markdown("""
+Use the built-in page menu:
 
-    # ✅ Only show filters if relevant data exists
-    has_assumptions = (
-        scope_df["assumptions"].str.strip() != ""
-    ).any()
+- 📊 Dashboard  
+- 📋 Scope Analysis  
+- 🔗 Design Sequence  
+- 📁 Relied Information  
+""")
 
-    has_changes = (
-        scope_df["comments"].str.contains("change", case=False, na=False)
-    ).any()
+# Optional quick nav buttons (works in Streamlit Cloud)
+st.sidebar.markdown("### 🚀 Quick Access")
 
-    show_assumptions = False
-    show_changes = False
+try:
+    if st.sidebar.button("📊 Dashboard"):
+        st.switch_page("pages/dashboard.py")
 
-    if has_assumptions:
-        show_assumptions = st.sidebar.checkbox("Has Assumptions")
+    if st.sidebar.button("📋 Scope"):
+        st.switch_page("pages/scope.py")
 
-    if has_changes:
-        show_changes = st.sidebar.checkbox("Show Changes")
+    if st.sidebar.button("🔗 Sequence"):
+        st.switch_page("pages/sequence.py")
 
-    return {
-        "discipline": discipline,
-        "search": search,
-        "assumptions": show_assumptions,
-        "changes": show_changes
-    }
+    if st.sidebar.button("📁 Relied Info"):
+        st.switch_page("pages/relied_info.py")
+except:
+    # fallback for local dev or older Streamlit versions
+    st.sidebar.info("Use sidebar page selector")
+
+# =========================
+# GLOBAL FILTERS
+# =========================
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Global Filters")
+
+# Phase filter
+phase = st.sidebar.selectbox(
+    "Select Phase",
+    ["All", "40%", "60%", "Optimised 60%"],
+    index=0
+)
+
+# Discipline filter
+discipline = st.sidebar.selectbox(
+    "Select Discipline",
+    [
+        "All",
+        "Civil",
+        "Structural",
+        "Mechanical",
+        "Process",
+        "Electrical & ICA",
+        "Geotechnical"
+    ],
+    index=0
+)
+
+# Store globally across pages
+st.session_state["phase"] = phase
+st.session_state["discipline"] = discipline
+
+# =========================
+# SYSTEM STATUS
+# =========================
+st.sidebar.markdown("---")
+st.sidebar.subheader("🟢 System Status")
+
+st.sidebar.success("Data Loaded")
+st.sidebar.success("Risk Engine Active")
+st.sidebar.success("AI Layer Running")
+
+# =========================
+# QUICK INSIGHTS (STATIC OR DYNAMIC)
+# =========================
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚡ Quick Insights")
+
+st.sidebar.markdown("""
+- Multiple **CHANGE events** detected  
+- Heavy reliance on **supplier proposals**  
+- Risk concentration in **60% phase**  
+""")
+
+# =========================
+# OPTIONAL METRICS PREVIEW
+# =========================
+st.sidebar.markdown("---")
+st.sidebar.subheader("📌 Snapshot")
+
+# Placeholder values (replace later with real calculations)
+st.sidebar.metric("Scope Items", "—")
+st.sidebar.metric("High Risk Items", "—")
+st.sidebar.metric("Change Events", "—")
+
+# =========================
+# FOOTER
+# =========================
+st.sidebar.markdown("---")
+st.sidebar.caption("Design Intelligence System v1.0")

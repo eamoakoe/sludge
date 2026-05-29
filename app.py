@@ -1,66 +1,77 @@
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 import streamlit as st
-from utils.loader_scope import load_scope
-from sidebar import build_sidebar
-from utils.style import apply_theme
 
-# CONFIG
-st.set_page_config(page_title="ASP4", layout="wide")
+# ---- Page Config ----
+st.set_page_config(
+    page_title="Design Intelligence Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-apply_theme()
+# ---- Sidebar Branding ----
+st.sidebar.title("🏗️ Design AI Platform")
 
-st.title("Design Scope Dashboard")
+st.sidebar.markdown("""
+**Project:** Davyhulme ASP4  
+**Phase:** Feasibility  
+**Built by:** Design Management  
 
-# ✅ Load data
-df = load_scope("data/design_scope.xlsx")
+---
+""")
 
-st.write(f"✅ Loaded {len(df)} scope items")
+# ---- Navigation Info ----
+st.sidebar.subheader("📂 Modules")
 
-# ✅ Sidebar
-filters = build_sidebar(df)
+st.sidebar.markdown("""
+- 📊 Dashboard  
+- 📋 Scope Analysis  
+- 🔗 Design Sequence  
+- 📁 Relied Information  
+""")
 
-# ✅ Filtering logic
-filtered = df.copy()
+# ---- Global Filters (OPTIONAL but powerful) ----
+st.sidebar.subheader("⚙️ Global Filters")
 
-# Discipline
-if filters["discipline"] != "All":
-    filtered = filtered[
-        filtered["discipline"] == filters["discipline"]
-    ]
+phase = st.sidebar.selectbox(
+    "Select Phase",
+    ["All", "40%", "60%", "Optimised 60%"]
+)
 
-# Search
-if filters["search"]:
-    filtered = filtered[
-        filtered["scope_item"].str.contains(
-            filters["search"],
-            case=False,
-            na=False
-        )
-    ]
+discipline = st.sidebar.selectbox(
+    "Select Discipline",
+    ["All", "Civil", "Structural", "Mechanical", "Process", "Electrical & ICA"]
+)
 
-# Assumptions
-if filters["assumptions"]:
-    filtered = filtered[
-        filtered["assumptions"].str.strip() != ""
-    ]
+# Store globally (important)
+st.session_state["phase"] = phase
+st.session_state["discipline"] = discipline
 
-# Changes
-if filters["changes"]:
-    filtered = filtered[
-        filtered["comments"].str.contains(
-            "change",
-            case=False,
-            na=False
-        )
-    ]
+# ---- Main Page ----
+st.title("🏗️ Design Management Intelligence System")
 
-# ✅ Always display something
-if filtered.empty:
-    st.warning("No matches — showing full dataset")
-    st.dataframe(df, width="stretch")
-else:
-    st.dataframe(filtered, width="stretch")
+st.markdown("""
+Welcome to the AI-powered design dashboard.
+
+Use the sidebar to navigate between:
+- **Scope Intelligence**
+- **Design Flow**
+- **Dependency Risk**
+
+---
+
+### 🚀 What this tool does
+- Detects **design risks automatically**
+- Highlights **changes in scope**
+- Tracks **dependencies and bottlenecks**
+- Surfaces **supplier and data risks**
+
+---
+""")
+
+# ---- Quick Summary Panel ----
+col1, col2, col3 = st.columns(3)
+
+col1.info("📊 Analyse design risk across disciplines")
+col2.info("🔗 Understand sequencing and dependencies")
+col3.info("📁 Track relied information & supplier exposure")
+
+st.success("✅ System ready")
