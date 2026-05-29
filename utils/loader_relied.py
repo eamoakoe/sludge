@@ -1,20 +1,22 @@
 import pandas as pd
 
+
 def load_relied():
     df = pd.read_excel("data/relied_info.xlsx", engine="openpyxl", header=None)
 
+    # Rename column
     df.columns = ["document"]
 
-    # Clean
-    df["document"] = df["document"].astype(str).str.strip()
+    # ✅ FIX: Force everything to string and clean
+    df["document"] = df["document"].fillna("").astype(str).str.strip()
 
     # Categorise
     df["category"] = df["document"].apply(classify_doc)
 
-    # Extract location / project
+    # Extract site
     df["site"] = df["document"].apply(extract_site)
 
-    # Detect risk signals
+    # Risk flag
     df["risk_flag"] = df["document"].str.contains(
         "budgetary|estimate|proposal", case=False, na=False
     )
@@ -22,8 +24,12 @@ def load_relied():
     return df
 
 
+# ---------------------------
+# HELPERS
+# ---------------------------
+
 def classify_doc(doc):
-    doc = doc.lower()
+    doc = str(doc).lower()   # ✅ SAFE conversion
 
     if "pci" in doc:
         return "PCI"
@@ -33,14 +39,14 @@ def classify_doc(doc):
         return "Appendix"
     elif "batch report" in doc:
         return "Model Output"
-    elif "drawing" in doc or "w wtw" in doc:
+    elif "wwtw" in doc:
         return "Drawings"
     else:
         return "General"
 
 
 def extract_site(doc):
-    doc = doc.lower()
+    doc = str(doc).lower()   # ✅ SAFE conversion
 
     if "wigan" in doc:
         return "Wigan"
