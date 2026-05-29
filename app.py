@@ -1,47 +1,61 @@
 import sys
 import os
 
-# ✅ CRITICAL FIX FOR STREAMLIT CLOUD
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
 from utils.loader_scope import load_scope
-from utils.risk_engine import compute_risk
-from utils.style import apply_theme
 from sidebar import build_sidebar
+from utils.style import apply_theme
 
-# Style
+st.set_page_config(page_title="ASP4", layout="wide")
+
 apply_theme()
 
-# Load data
+st.title("Design Scope Dashboard")
+
+# Load
 df = load_scope("data/design_scope.xlsx")
-df = compute_risk(df)
+
+st.write(f"✅ Loaded {len(df)} scope items")
 
 # Sidebar
 filters = build_sidebar(df)
 
-# -----------------------------------
-# BASIC FILTERING (Scope page)
-# -----------------------------------
+# Filters
 filtered = df.copy()
 
 if filters["discipline"] != "All":
-    filtered = filtered[filtered["discipline"] == filters["discipline"]]
-
-if filters["risk"]:
-    filtered = filtered[filtered["risk_level"].isin(filters["risk"])]
-
-if filters["uncertain"]:
-    filtered = filtered[filtered["is_uncertain"] == True]
+    filtered = filtered[
+        filtered["discipline"] == filters["discipline"]
+    ]
 
 if filters["search"]:
     filtered = filtered[
-        filtered["scope_item"].str.contains(filters["search"], case=False, na=False)
+        filtered["scope_item"].str.contains(
+            filters["search"],
+            case=False,
+            na=False
+        )
     ]
 
-# -----------------------------------
-# DISPLAY
-# -----------------------------------
-st.title("Design Scope")
+if filters["assumptions"]:
+    filtered = filtered[
+        filtered["assumptions"].str.strip() != ""
+    ]
 
-st.dataframe(filtered)
+if filters["changes"]:
+    filtered = filtered[
+        filtered["comments"].str.contains(
+            "change",
+            case=False,
+            na=False
+        )
+    ]
+
+# Display
+if filtered.empty:
+    st.warning("No matches — showing full dataset")
+    st.dataframe(df, width="stretch")
+else:
+    st.dataframe(filtered, width="stretch")
