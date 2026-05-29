@@ -1,15 +1,16 @@
 import streamlit as st
 
+
 def render_sidebar():
     # =========================
-    # HEADER / BRANDING
+    # TITLE / BRANDING
     # =========================
     st.sidebar.title("🏗️ Design AI Platform")
 
     st.sidebar.markdown("""
-**Project:** Davyhulme ASP4  
-**Stage:** Feasibility  
-""")
+    **Project:** Davyhulme ASP4  
+    **Phase:** Feasibility  
+    """)
 
     st.sidebar.markdown("---")
 
@@ -18,27 +19,29 @@ def render_sidebar():
     # =========================
     st.sidebar.subheader("📂 Navigation")
 
-    st.sidebar.info("Use the page selector above to switch screens")
+    st.sidebar.info("Use the page selector above to switch modules")
 
     st.sidebar.markdown("""
-- Home (Dashboard)  
-- Scope  
-- Sequence  
-- Relied Info  
-""")
+    - Home (Dashboard)  
+    - Scope  
+    - Sequence  
+    - Relied Info  
+    """)
 
     # =========================
-    # GLOBAL FILTERS
+    # GLOBAL FILTERS (CORE)
     # =========================
     st.sidebar.markdown("---")
     st.sidebar.subheader("⚙️ Filters")
 
+    # ---- Phase Filter ----
     phase = st.sidebar.selectbox(
         "Phase",
         ["All", "40%", "60%", "Optimised 60%"],
         key="phase_filter"
     )
 
+    # ---- Discipline Filter ----
     discipline = st.sidebar.selectbox(
         "Discipline",
         [
@@ -53,7 +56,7 @@ def render_sidebar():
         key="discipline_filter"
     )
 
-    # Save filters globally (used by all pages)
+    # ✅ STORE GLOBALLY (THIS IS THE MOST IMPORTANT PART)
     st.session_state["phase"] = phase
     st.session_state["discipline"] = discipline
 
@@ -63,24 +66,4 @@ def render_sidebar():
     st.sidebar.markdown("---")
     st.sidebar.subheader("🟢 System Status")
 
-    st.sidebar.success("Data Loaded")
-    st.sidebar.success("Risk Engine Active")
     st.sidebar.success("App Running")
-
-    # =========================
-    # QUICK INSIGHTS (STATIC FOR NOW)
-    # =========================
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("⚡ Insights")
-
-    st.sidebar.markdown("""
-- Changes detected in scope  
-- Supplier dependency present  
-- Risk concentrated in later phases  
-""")
-
-    # =========================
-    # FOOTER
-    # =========================
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Design Intelligence System v1.0")
